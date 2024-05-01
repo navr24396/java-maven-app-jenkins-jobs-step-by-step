@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 pipeline {
     agent any
     tools {
@@ -19,10 +21,10 @@ pipeline {
         }
         stage('build app') {
             steps {
-                script {
-                    echo "building the application..."
-                    sh 'mvn clean package'
-                }
+               script {
+                   echo "building the application..."
+                   sh 'mvn clean package'
+               }
             }
         }
         stage('build image') {
@@ -40,7 +42,26 @@ pipeline {
         stage('deploy') {
             steps {
                 script {
-                    echo 'deploying docker image to EC2...'
+                   echo 'deploying docker image to EC2...'
+                }
+            }
+        }
+        stage('commit version update') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'GitHub', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                        sh 'git config --global user.email "jenkins@example.com"'
+                        sh 'git config --global user.name "jenkins"'
+
+                        sh 'git status'
+                        sh 'git branch'
+                        sh 'git config --list'
+
+                        sh "git remote set-url origin https://${USER}:${PASS}@github.com/navr24396/java-maven-app-jenkins-jobs-step-by-step.git"
+                        sh 'git add .'
+                        sh 'git commit -m "ci: version bump"'
+                        sh 'git push origin HEAD:main'
+                    }
                 }
             }
         }
