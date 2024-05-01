@@ -27,14 +27,14 @@ pipeline {
                }
             }
         }
-        stage('build image') {
+        stage('build image and push to ECR') {
             steps {
                 script {
                     echo "building the docker image..."
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                        sh "docker image build -t navr24396/java-maven-app:${IMAGE_NAME} ."
-                        sh "echo $PASS | docker login -u $USER --password-stdin"
-                        sh "docker push navr24396/java-maven-app:${IMAGE_NAME}"
+                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        sh "docker image build -t 089088340519.dkr.ecr.us-west-2.amazonaws.com/java-maven-app:${IMAGE_NAME} ."
+                        sh "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 089088340519.dkr.ecr.us-west-2.amazonaws.com"
+                        sh "docker image push 089088340519.dkr.ecr.us-west-2.amazonaws.com/java-maven-app:${IMAGE_NAME}"
                     }
                 }
             }
@@ -52,10 +52,6 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'GitHub', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
                         sh 'git config --global user.email "jenkins@example.com"'
                         sh 'git config --global user.name "jenkins"'
-
-                        sh 'git status'
-                        sh 'git branch'
-                        sh 'git config --list'
 
                         sh "git remote set-url origin https://${USER}:${PASS}@github.com/navr24396/java-maven-app-jenkins-jobs-step-by-step.git"
                         sh 'git add .'
