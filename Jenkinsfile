@@ -42,7 +42,7 @@ pipeline {
         stage('deploy') {
             steps {
                 script {
-                    def dockerCmd = 'docker container run --name java-maven-app -p 3080:3080 -d 089088340519.dkr.ecr.us-west-2.amazonaws.com/java-maven-app:1.1.5-43'
+                    def dockerCmd = "docker container run -P -d 089088340519.dkr.ecr.us-west-2.amazonaws.com/java-maven-app:${IMAGE_NAME}"
                     withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                         sh "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 089088340519.dkr.ecr.us-west-2.amazonaws.com"
                     }
