@@ -42,7 +42,13 @@ pipeline {
         stage('deploy') {
             steps {
                 script {
-                   echo 'deploying docker image to EC2...'
+                    def dockerCmd = 'docker container run --name java-maven-app -p 3080:3080 -d 089088340519.dkr.ecr.us-west-2.amazonaws.com/java-maven-app:1.1.5-43'
+                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        sh "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 089088340519.dkr.ecr.us-west-2.amazonaws.com"
+                    }
+                    sshagent(['ec2-server-key']) {
+                        sh "ssh -o StrictHostKeyChecking=no ubuntu@54.213.134.226 ${dockerCmd}"
+                    }
                 }
             }
         }
