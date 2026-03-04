@@ -1,8 +1,8 @@
-FROM openjdk:8-jre-alpine
+FROM openjdk:19-ea-jdk-alpine3.16
 
 EXPOSE 8080
 
-COPY ./target/java-maven-app-1.0-SNAPSHOT.jar /usr/app/
+COPY ./target/java-maven-app-*.jar /usr/app/
 WORKDIR /usr/app
 
-ENTRYPOINT ["java", "-jar", "java-maven-app-1.0-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "java-maven-app-*.jar"]
